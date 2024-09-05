@@ -2,7 +2,7 @@ package slogging
 
 import (
 	"context"
-	sloggraylog "github.com/samber/slog-graylog/v2"
+	"github.com/Graylog2/go-gelf/gelf"
 	slogmulti "github.com/samber/slog-multi"
 	"log/slog"
 	"os"
@@ -67,17 +67,15 @@ func NewLogger(opts ...LoggerOption) *Logger {
 	if cfg.InGraylog == nil {
 		l = New(stdHandler)
 	} else {
-		graylogHandler := sloggraylog.Option{
-			Level:           cfg.Level,
-			Writer:          cfg.InGraylog.w,
-			AttrFromContext: nil,
-			AddSource:       true,
-			Converter: func(addSource bool, replaceAttr func(groups []string, a slog.Attr) slog.Attr, loggerAttr []slog.Attr, groups []string, record *slog.Record) (extra map[string]any) {
-				if addSource {
-
-				}
-
+		graylogHandler := Option{
+			Level:  cfg.Level,
+			Writer: cfg.InGraylog.w,
+			// If you need extra fields from context automatically write and append here a function
+			AttrFromContext: []func(ctx context.Context) []slog.Attr{
+				XB3AttrFromContext,
 			},
+			AddSource: true,
+			Converter: DefaultConverter,
 		}.NewGraylogHandler()
 
 		graylogHandler = graylogHandler.WithAttrs([]Attr{slog.String("container_name", cfg.InGraylog.containerName)})

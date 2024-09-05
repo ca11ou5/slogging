@@ -43,3 +43,7 @@ func TimeAttr(key string, time time.Time) Attr {
 func ErrAttr(err error) Attr {
 	return slog.String("error", err.Error())
 }
+
+func AnyAttr(key string, s interface{}) Attr {
+	return slog.Any(key, s)
+}
