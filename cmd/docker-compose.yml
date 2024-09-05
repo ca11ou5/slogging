@@ -1,0 +1,69 @@
+version: '3'
+
+services:
+  mongo:
+    container_name: mongo
+    image: mongo
+    restart: always
+    logging:
+      driver: none
+      options:
+        max-size: "1m"
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    command: mongod --quiet --logpath /dev/null
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:7.17.7
+    environment:
+      http.host: 0.0.0.0
+      transport.host: localhost
+      network.host: 0.0.0.0
+      ES_JAVA_OPTS: "-Dlog4j2.formatMsgNoLookups=true -Xms512m -Xmx512m"
+    expose:
+      - 9200
+    ports:
+      - 9200:9200
+    logging:
+      driver: none
+      options:
+        max-size: "1m"
+    depends_on:
+      - mongo
+
+  graylog:
+    image: graylog/graylog:5.0
+    container_name: graylog
+    hostname: graylog
+    entrypoint: "/usr/bin/tini -- wait-for-it elasticsearch:9200 --  /docker-entrypoint.sh"
+    environment:
+      # web interface default username/password: admin/qwertyqwertyqwerty
+      GRAYLOG_PASSWORD_SECRET: qwertyqwertyqwerty
+      GRAYLOG_ROOT_PASSWORD_SHA2: 1f7ce3e5fe60a6098f31f0a96d9c3d72292f2f87b69dce078b68ee42c8bd79f1
+      GRAYLOG_HTTP_EXTERNAL_URI: http://0.0.0.0:9000/
+      GRAYLOG_ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      GRAYLOG_MONGODB_URI: mongodb://mongo:27017/graylog
+    ports:
+      - 9000:9000        # Graylog web interface and REST API
+      - 1514:1514        # Syslog TCP
+      - 1514:1514/udp    # Syslog UDP
+      - 12201:12201      # GELF TCP
+      - 12201:12201/udp  # GELF UDP
+    restart: "on-failure"
+    logging:
+      driver: none
+      options:
+        max-size: "1m"
+    depends_on:
+      - mongo
+      - elasticsearch
+
+  app:
+    image: app
+    depends_on:
+      - mongo
+      - elasticsearch
+      - graylog
