@@ -68,12 +68,8 @@ func NewLogger(opts ...LoggerOption) *Logger {
 		l = New(stdHandler)
 	} else {
 		graylogHandler := Option{
-			Level:  cfg.Level,
-			Writer: cfg.InGraylog.w,
-			// If you need extra fields from context automatically write and append here a function
-			AttrFromContext: []func(ctx context.Context) []slog.Attr{
-				XB3AttrFromContext,
-			},
+			Level:     cfg.Level,
+			Writer:    cfg.InGraylog.w,
 			AddSource: true,
 			Converter: DefaultConverter,
 		}.NewGraylogHandler()

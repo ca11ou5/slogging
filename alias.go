@@ -44,6 +44,10 @@ func ErrAttr(err error) Attr {
 	return slog.String("error", err.Error())
 }
 
+func StringAttr(key string, value string) Attr {
+	return slog.String(key, value)
+}
+
 func AnyAttr(key string, s interface{}) Attr {
 	return slog.Any(key, s)
 }
