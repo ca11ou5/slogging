@@ -41,7 +41,7 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 			abc.ErrAttr(err))
 	}
 
-	req = abc.RequestWithTraceHeaders(req, r.Context())
+	req = abc.RequestWithTraceHeaders(r.Context(), req)
 	log.Info("headers",
 		abc.StringAttr("xb-3trace", req.Header.Get("X-B3-TraceId")))
 
