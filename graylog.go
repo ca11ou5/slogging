@@ -152,12 +152,6 @@ const (
 	xb3traceid = "X-B3-TraceId"
 )
 
-func XB3AttrFromContext(ctx context.Context) []slog.Attr {
-	return []slog.Attr{
-		slog.String(xb3traceid, (ctx.Value("X-B3-TraceId")).(string)),
-	}
-}
-
 var LogLevels = map[slog.Level]int32{
 	slog.LevelDebug: 7,
 	slog.LevelInfo:  6,
