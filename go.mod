@@ -1,4 +1,4 @@
-module github.com/scbt-ecom/slogging
+module github.com/ca11ou5/slogging
 
 go 1.22
 
